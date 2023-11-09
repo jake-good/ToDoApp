@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TodoApi.Models;
@@ -15,11 +17,11 @@ public class ToDoItemsController : ControllerBase
         _context = context;
     }
 
+    [Authorize]
     [HttpGet("{id}")]
-    public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
+    public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
     {
         var todoItem = await _context.TodoItems.FindAsync(id);
-
         if (todoItem == null)
         {
             return NotFound();
@@ -28,13 +30,20 @@ public class ToDoItemsController : ControllerBase
         return todoItem;
     }
 
+    [Authorize]
     [HttpGet]
     public async Task<ActionResult<TodoItem[]>> GetTodoItems()
     {
-        var items = await _context.TodoItems.ToArrayAsync();
+        var user = User;
+
+        // Access individual claims
+        var username = User.FindFirst(ClaimTypes.Name)?.Value;
+        var account = _context.Users.FirstOrDefault(user => user.Username == username);
+        var items = await _context.TodoItems.Where(e => e.UserId == account.UserId).ToArrayAsync();
         return items;
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<TodoItemDTO>> PostTodoItem(TodoItemDTO todoItemDTO)
     {
@@ -58,8 +67,9 @@ public class ToDoItemsController : ControllerBase
         return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItemDTO);
     }
 
+    [Authorize]
     [HttpDelete("{id}")]
-    public async Task<ActionResult<TodoItem>> DeleteTodoItem(long id)
+    public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
     {
         var todoItem = await _context.TodoItems.FindAsync(id);
 

@@ -16,7 +16,7 @@ namespace ToDoApi.Models
         public string Email { get; set; }
 
         [Required]
-        public string Password { get; set; } // Hashed and Salted
+        public string HashedPassword { get; set; } // Hashed and Salted
         // Navigation property for tasks associated with the user
         public ICollection<TodoItem> TodoItems { get; set; }
     }

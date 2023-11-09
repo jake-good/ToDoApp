@@ -10,10 +10,12 @@ namespace ToDoApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly TodoContext _context;
+        private readonly IUserSerivce _userService;
 
-        public UserController(TodoContext userContext)
+        public UserController(TodoContext userContext, IUserSerivce userSerivce)
         {
             _context = userContext;
+            _userService = userSerivce;
         }
 
         [HttpGet("{id}")]
@@ -35,12 +37,24 @@ namespace ToDoApi.Controllers
             return users;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<User>> PostUser(User user)
+        [HttpPost("signup")]
+        public async Task<IActionResult> SignUp(UserRegistrationModel model)
         {
-            _context.Add(user);
+            var user = new User { Username = model.Username, HashedPassword = _userService.HashPassword(model.Password), Email = "fake@mail.com" };
+            _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+            return Ok();
+        }
+
+        [HttpPost("login")]
+        public IActionResult Login(UserRegistrationModel model)
+        {
+            if (_userService.IsUserValid(model.Username, model.Password))
+            {
+                var token = _userService.GenerateJwtToken(model.Username);
+                return Ok(new { Token = token });
+            }
+            return Unauthorized("Invalid credentials");
         }
 
         [HttpDelete]
