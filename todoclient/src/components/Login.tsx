@@ -1,7 +1,7 @@
 import { useState } from "react";
-import apiClient from "./api/apiClient";
-import useAuth from "./hooks/useAuth";
-import { Navigate } from "react-router-dom";
+import apiClient from "../api/apiClient";
+import useAuth from "../hooks/useAuth";
+import { Link, Navigate } from "react-router-dom";
 
 export default function LoginPage() {
   const { setAuth } = useAuth();
@@ -32,11 +32,22 @@ export default function LoginPage() {
   ) : (
     <div>
       <form className="login-container" action="post" onSubmit={handleSubmit}>
-        <input type="text" name="username" />
-        <input type="text" name="password" />
-        <button className="login" type="submit">
-          Login/Signup
-        </button>
+        <label>
+          Username:
+          <input style={{ marginLeft: "15px" }} type="text" name="username" />
+        </label>
+        <label>
+          Password:
+          <input style={{ marginLeft: "15px" }} type="text" name="password" />
+        </label>
+        <section>
+          <button className="login" type="submit">
+            Login
+          </button>
+          <Link to="/signup">
+            <a>Sign up</a>
+          </Link>
+        </section>
       </form>
     </div>
   );

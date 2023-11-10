@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useApiPrivate from "./hooks/useApiPrivate";
+import useApiPrivate from "../hooks/useApiPrivate";
 
 type Task = {
   id: number;
