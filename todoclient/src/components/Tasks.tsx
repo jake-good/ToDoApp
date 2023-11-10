@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import useApiPrivate from "../hooks/useApiPrivate";
+import useAuth from "../hooks/useAuth";
+import CreateTaskModal from "./CreateTaskModal";
 
-type Task = {
+export type Task = {
   id: number;
   title: string;
   description: string;
@@ -10,7 +12,9 @@ type Task = {
 
 export default function Tasks() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [showModal, setShowModal] = useState(false);
   const apiClientPrivate = useApiPrivate();
+  const { auth } = useAuth();
 
   useEffect(() => {
     getTasks();
@@ -26,15 +30,11 @@ export default function Tasks() {
     }
   };
 
-  const createTask = () => {
-    const task: Task = {
-      id: 0,
-      userId: 4,
-      title: "This is a task",
-      description: "This is a task description",
-    };
+  const createTask = (task: Task) => {
     try {
+      task.userId = auth.userId;
       apiClientPrivate.post("/ToDoItems", task).then(() => getTasks());
+      setShowModal(false);
     } catch (e) {
       console.log(e);
     }
@@ -50,13 +50,14 @@ export default function Tasks() {
 
   return (
     <>
+      {showModal && <CreateTaskModal createTask={createTask} />}
       <button
         style={{ bottom: "20px", left: "20px", position: "fixed" }}
-        onClick={createTask}
+        onClick={() => setShowModal(true)}
       >
         +
       </button>
-      <div className="tasks-container">
+      <div className={(showModal ? "blur" : "") + " tasks-container"}>
         <div className="tasks-column">
           {tasks.map((task) => (
             <div className="task">

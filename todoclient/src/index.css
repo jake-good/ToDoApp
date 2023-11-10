@@ -44,6 +44,7 @@
     flex-direction: row;
     justify-content: center;
     margin: 30px;
+
     .tasks-column {
       margin: 30px;
       display: flex;
@@ -63,6 +64,36 @@
       }
     }
   }
+
+  .blur {
+    filter: blur(2px);
+  }
+  
+  .create-task-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+  }
+  
+  .create-task-modal label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .create-task-modal input, .create-task-modal textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+  }
+  
 }
 
 button {

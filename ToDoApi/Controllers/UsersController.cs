@@ -47,12 +47,13 @@ namespace ToDoApi.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(UserRegistrationModel model)
+        public async Task<IActionResult> LoginAsync(UserRegistrationModel model)
         {
             if (_userService.IsUserValid(model.Username, model.Password))
             {
                 var token = _userService.GenerateJwtToken(model.Username);
-                return Ok(new { Token = token });
+                var account = await _context.Users.FirstOrDefaultAsync(user => user.Username == model.Username);
+                return Ok(new { Token = token, account?.UserId });
             }
             return Unauthorized("Invalid credentials");
         }

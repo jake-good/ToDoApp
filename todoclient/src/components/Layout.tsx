@@ -13,7 +13,16 @@ const Layout = () => {
               <button className="login-nav">Login</button>
             </Link>
           ) : (
-            <button onClick={() => setAuth({})}>Logout</button>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+              }}
+            >
+              <p>Logged in as: {auth?.username}</p>
+              <button onClick={() => setAuth({})}>Logout</button>
+            </div>
           )}
         </div>
       </div>
