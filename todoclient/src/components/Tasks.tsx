@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import useApiPrivate from "../hooks/useApiPrivate";
 import useAuth from "../hooks/useAuth";
 import CreateTaskModal from "./CreateTaskModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
+import { faAdd } from "@fortawesome/free-solid-svg-icons";
 
 export type Task = {
   id: number;
@@ -30,11 +33,12 @@ export default function Tasks() {
     }
   };
 
-  const createTask = (task: Task) => {
+  const createTask = async (task: Task) => {
     try {
       task.userId = auth.userId;
-      apiClientPrivate.post("/ToDoItems", task).then(() => getTasks());
+      await apiClientPrivate.post(`/ToDoItems`, task);
       setShowModal(false);
+      getTasks();
     } catch (e) {
       console.log(e);
     }
@@ -50,20 +54,35 @@ export default function Tasks() {
 
   return (
     <>
-      {showModal && <CreateTaskModal createTask={createTask} />}
+      {showModal && (
+        <CreateTaskModal
+          createTask={createTask}
+          cancel={() => setShowModal(false)}
+        />
+      )}
       <button
-        style={{ bottom: "20px", left: "20px", position: "fixed" }}
+        style={{
+          bottom: "20px",
+          left: "20px",
+          position: "fixed",
+        }}
         onClick={() => setShowModal(true)}
       >
-        +
+        New Task
+        <FontAwesomeIcon style={{ paddingLeft: "10px" }} icon={faAdd} />
       </button>
       <div className={(showModal ? "blur" : "") + " tasks-container"}>
         <div className="tasks-column">
           {tasks.map((task) => (
-            <div className="task">
+            <div key={task.id.toString()} className="task">
               <h1>{task.title}</h1>
               <p>{task.description}</p>
-              <button onClick={() => deleteTask(task.id)}>delete</button>
+              <button
+                className="delete-task"
+                onClick={() => deleteTask(task.id)}
+              >
+                <FontAwesomeIcon icon={faTrashCan} />
+              </button>
             </div>
           ))}
         </div>

@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { Task } from "./Tasks";
 
-const CreateTaskModal = ({ createTask }) => {
+const CreateTaskModal = ({ createTask, cancel }) => {
   const [task, setTask] = useState<Task>({});
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
     createTask(task);
   };
 
   return (
     <form className="create-task-modal" onSubmit={handleSubmit}>
+      <h2 style={{ borderBottom: "1px black solid", marginBottom: "25px" }}>
+        Create new Task
+      </h2>
       <label>
         Title:
         <input
@@ -26,6 +30,7 @@ const CreateTaskModal = ({ createTask }) => {
         ></textarea>
       </label>
       <button type="submit">Submit</button>
+      <button onClick={cancel}>Cancel</button>
     </form>
   );
 };

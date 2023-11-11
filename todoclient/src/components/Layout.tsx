@@ -20,7 +20,10 @@ const Layout = () => {
                 alignItems: "center",
               }}
             >
-              <p>Logged in as: {auth?.username}</p>
+              <p>Logged in as: </p>
+              <p style={{ padding: "10px", fontWeight: "bold" }}>
+                {auth?.username}
+              </p>
               <button onClick={() => setAuth({})}>Logout</button>
             </div>
           )}
