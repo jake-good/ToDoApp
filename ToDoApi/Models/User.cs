@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using TodoApi.Models;
 
 namespace ToDoApi.Models
@@ -9,16 +10,20 @@ namespace ToDoApi.Models
 
         [Required]
         [MaxLength(50)]
-        public string Username { get; set; }
+        public required string Username { get; set; }
 
         [Required]
         [MaxLength(100)]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Required]
-        public string HashedPassword { get; set; } // Hashed and Salted
+        [JsonIgnore]
+        public required string HashedPassword { get; set; } // Hashed and Salted
         // Navigation property for tasks associated with the user
         public ICollection<TodoItem> TodoItems { get; set; }
+
+        [JsonIgnore]
+        public List<RefreshToken> RefreshTokens { get; set; }
     }
 
 }

@@ -1,5 +1,8 @@
-public class UserRegistrationModel
+namespace ToDoApi.Models.DTO
 {
-    public string Username { get; set; }
-    public string Password { get; set; }
+    public class UserRegistrationModel
+    {
+        public required string Username { get; set; }
+        public required string Password { get; set; }
+    }
 }

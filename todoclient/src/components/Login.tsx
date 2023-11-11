@@ -13,7 +13,7 @@ export default function LoginPage() {
     e.preventDefault();
     try {
       const response = await apiClient.post(
-        "/users/login",
+        "/users/authenticate",
         { username, password },
         {
           headers: { "Content-Type": "application/json" },
@@ -22,7 +22,7 @@ export default function LoginPage() {
       );
       console.log(JSON.stringify(response?.data));
       setAuth({
-        accessToken: response.data.token,
+        accessToken: response.data.jwtToken,
         userId: response.data.userId,
         username,
       });

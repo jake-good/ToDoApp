@@ -1,75 +1,100 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using TodoApi.Models;
 using ToDoApi.Models;
+using ToDoApi.Models.DTO;
+using ToDoApi.Services;
+using WebApi.Authorization;
 
 namespace ToDoApi.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/users")]
     public class UserController : ControllerBase
     {
-        private readonly TodoContext _context;
         private readonly IUserSerivce _userService;
 
-        public UserController(TodoContext userContext, IUserSerivce userSerivce)
+        public UserController(IUserSerivce userSerivce)
         {
-            _context = userContext;
             _userService = userSerivce;
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userService.GetById(id);
             if (user == null)
             {
                 return NotFound();
             }
-
             return user;
         }
 
         [HttpGet]
         public async Task<ActionResult<User[]>> GetUsers()
         {
-            var users = await _context.Users.Include(u => u.TodoItems).ToArrayAsync();
-            return users;
+            return await _userService.GetAll();
         }
 
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp(UserRegistrationModel model)
         {
-            var user = new User { Username = model.Username, HashedPassword = _userService.HashPassword(model.Password), Email = "fake@mail.com" };
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _userService.AddUserAsync(model);
             return Ok();
         }
 
-        [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync(UserRegistrationModel model)
+        [AllowAnonymous]
+        [HttpPost("authenticate")]
+        public IActionResult Authenticate(UserRegistrationModel model)
         {
-            if (_userService.IsUserValid(model.Username, model.Password))
-            {
-                var token = _userService.GenerateJwtToken(model.Username);
-                var account = await _context.Users.FirstOrDefaultAsync(user => user.Username == model.Username);
-                return Ok(new { Token = token, account?.UserId });
-            }
-            return Unauthorized("Invalid credentials");
+            var response = _userService.Authenticate(model);
+            SetTokenCookie(response.RefreshToken);
+            return Ok(response);
         }
 
-        [HttpDelete]
-        public async Task<ActionResult<User>> DeleteUser(int userId)
+        [AllowAnonymous]
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshTokenAsync()
         {
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
+            var refreshToken = Request.Cookies["refreshToken"];
+            if (refreshToken == null)
             {
-                return NotFound();
+                return NotFound("No token in cookies");
             }
+            var response = await _userService.RefreshTokenAsync(refreshToken);
+            SetTokenCookie(response.RefreshToken);
+            return Ok(response);
+        }
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+        [HttpPost("revoke-token")]
+        public IActionResult RevokeToken(RevokeTokenRequest model)
+        {
+            // accept refresh token in request body or cookie
+            var token = model.Token ?? Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(token))
+                return BadRequest(new { message = "Token is required" });
+
+            _userService.RevokeTokenAsync(token);
+            return Ok(new { message = "Token revoked" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<User>> DeleteUser(int id)
+        {
+            var user = await _userService.DeleteUser(id);
             return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+        }
+
+        private void SetTokenCookie(string token)
+        {
+            // append cookie with refresh token to the http response
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+            Response.Cookies.Append("refreshToken", token, cookieOptions);
         }
     }
 }
