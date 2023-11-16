@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import useApiPrivate from "../hooks/useApiPrivate";
 import useAuth from "../hooks/useAuth";
-import CreateTaskModal from "./CreateTaskModal";
+import CreateTaskModal, { CreateTaskData } from "./CreateTaskModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashCan } from "@fortawesome/free-regular-svg-icons";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
@@ -33,9 +33,15 @@ export default function Tasks() {
     }
   };
 
-  const createTask = async (task: Task) => {
+  const createTask = async (taskData: CreateTaskData) => {
     try {
-      task.userId = auth.userId;
+      const task: Task = {
+        id: 0,
+        userId: parseInt(auth.userId),
+        title: taskData.title,
+        description: taskData.description,
+      };
+
       await apiClientPrivate.post(`/ToDoItems`, task);
       setShowModal(false);
       getTasks();

@@ -1,6 +1,17 @@
 import { FC, ReactNode, createContext, useState } from "react";
 
-const AuthContext = createContext({});
+export type Auth = {
+  accessToken: string;
+  username: string;
+  userId: string;
+};
+
+export type AuthContextType = {
+  auth: Auth;
+  setAuth: (auth: Auth) => void;
+};
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -9,7 +20,11 @@ interface AuthProviderProps {
 export const AuthProvider: FC<AuthProviderProps> = ({
   children,
 }: AuthProviderProps) => {
-  const [auth, setAuth] = useState({});
+  const [auth, setAuth] = useState<Auth>({
+    accessToken: "",
+    username: "",
+    userId: "",
+  });
 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>

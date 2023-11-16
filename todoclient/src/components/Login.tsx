@@ -2,6 +2,7 @@ import { useState } from "react";
 import apiClient from "../api/apiClient";
 import useAuth from "../hooks/useAuth";
 import { Link, Navigate } from "react-router-dom";
+import axios from "axios";
 
 export default function LoginPage() {
   const { setAuth } = useAuth();
@@ -9,7 +10,7 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await apiClient.post(
@@ -27,11 +28,11 @@ export default function LoginPage() {
         username,
       });
       setSuccess(true);
-    } catch (err) {
-      if (!err?.response) {
-        console.log("No server response");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.log(err.cause);
       } else {
-        console.log(err.response);
+        console.log(err);
       }
     }
   };

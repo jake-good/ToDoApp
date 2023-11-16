@@ -24,7 +24,13 @@ const Layout = () => {
               <p style={{ padding: "10px", fontWeight: "bold" }}>
                 {auth?.username}
               </p>
-              <button onClick={() => setAuth({})}>Logout</button>
+              <button
+                onClick={() =>
+                  setAuth({ accessToken: "", userId: "", username: "" })
+                }
+              >
+                Logout
+              </button>
             </div>
           )}
         </div>

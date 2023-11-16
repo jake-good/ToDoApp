@@ -1,6 +1,7 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import apiClient from "../api/apiClient";
 import { Navigate } from "react-router-dom";
+import axios from "axios";
 
 const SignUp = () => {
   const [username, setUser] = useState("");
@@ -8,7 +9,7 @@ const SignUp = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await apiClient.post(
@@ -21,8 +22,12 @@ const SignUp = () => {
       console.log(res);
       setSuccess(true);
     } catch (err) {
-      console.log(err);
-      setError(err.message);
+      if (axios.isAxiosError(err)) {
+        setError(err.message);
+        console.log(err);
+      } else {
+        console.log(err);
+      }
     }
   };
 

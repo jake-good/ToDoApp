@@ -1,10 +1,22 @@
 import { useState } from "react";
-import { Task } from "./Tasks";
 
-const CreateTaskModal = ({ createTask, cancel }) => {
-  const [task, setTask] = useState<Task>({});
+export type CreateTaskData = {
+  title: string;
+  description: string;
+};
 
-  const handleSubmit = (e) => {
+type CreateTaskModalProps = {
+  createTask: (data: CreateTaskData) => void;
+  cancel: () => void;
+};
+
+const CreateTaskModal = ({ createTask, cancel }: CreateTaskModalProps) => {
+  const [task, setTask] = useState<CreateTaskData>({
+    title: "",
+    description: "",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createTask(task);
   };
